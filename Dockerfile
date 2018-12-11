@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install \
      ca-certificates \
      cmake \
      curl \
+     ffmpeg \
      git \
      libjpeg-dev \
      libnccl2=2.2.13-1+cuda9.0 \
@@ -71,8 +72,8 @@ ENV PATH /opt/conda/envs/fastai/bin:$PATH
 # RUN pip install torch_nightly -f https://download.pytorch.org/whl/nightly/cu92/torch_nightly.html
 RUN pip install http://download.pytorch.org/whl/cu100/torch-1.0.0-cp36-cp36m-linux_x86_64.whl
 RUN pip install torchvision
-
 RUN pip install fastai
+RUN pip install h5py
 
 # jupyter notebook --ip=0.0.0.0 --no-browser --allow-root
 #CMD ["jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]

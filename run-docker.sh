@@ -16,7 +16,7 @@ docker run \
   -p 8888:8888 \
   --mount type=bind,src=${HOST_MOUNT},target=/docker_host \
   --workdir /docker_host \
-  fastai:1.0
+  videopose3d bash
 
 
 # docker exec -it ${NAME} bash
