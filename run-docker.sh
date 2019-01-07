@@ -2,7 +2,7 @@
 set -e
 ROOT=`pwd`
 
-NAME=fastai
+NAME=videopose3d
 
 # mkdir -p docker_host
 HOST_MOUNT=`pwd`
@@ -14,9 +14,9 @@ docker run \
   --shm-size 16G \
   --runtime=nvidia \
   -p 8888:8888 \
-  --mount type=bind,src=${HOST_MOUNT},target=/docker_host \
+  -v=${HOST_MOUNT}:/docker_host \
   --workdir /docker_host \
-  videopose3d bash
+  videopose3d
 
 
 # docker exec -it ${NAME} bash
