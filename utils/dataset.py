@@ -79,3 +79,27 @@ def get_poses(positions_2d, subject='S1', action='Default', camera=0):
     
     return poses
     
+
+def poses_2_archive(poses, subject='S1', action='Default'):
+    """
+    given a sequence of poses, create an archive
+    in the format required by VideoPose3D.
+    """
+    
+    s = dict()
+    s[action] = [poses] # array of cameras but we have only one camera
+    positions_2d = dict()
+    positions_2d[subject] = s
+    
+    metadata = dict({
+        'layout_name': 'h36m', 
+        'num_joints': 17, 
+        'keypoints_symmetry': [[4, 5, 6, 11, 12, 13], [1, 2, 3, 14, 15, 16]]
+    })
+    
+    archive = dict({
+        'positions_2d': positions_2d,
+        'metadata': metadata
+    })
+    
+    return archive
