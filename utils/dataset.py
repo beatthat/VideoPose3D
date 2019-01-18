@@ -1,6 +1,100 @@
 import numpy as np
 import os
 
+def prepare_data_2d_from_detectron(detectron_data, output_file_2d, output_file_3d):
+    keypoints_2d = import_detectron_poses(detectron_data)
+    dataset_2d, dataset_3d = keypoints_2d_to_datasets(keypoints_2d)
+    np.savez(output_file_2d, **dataset_2d)
+    np.savez(output_file_3d, **dataset_3d)
+
+
+
+
+
+
+def keypoints_2d_to_datasets(poses, subject='S1', action='Default'):
+    """
+    given a sequence of 2d keypoints for a single subject and action, 
+    create the datasets necessary to predict 3d keypoints with Video2Pose run.py.
+    """
+    
+    dataset_2d = dict({
+        'positions_2d': dict({
+            subject: dict({
+                action: [poses] # array of cameras but we have only one camera
+            })
+        }),
+        'metadata': dict({
+            'layout_name': 'h36m', 
+            'num_joints': 17, 
+            'keypoints_symmetry': [[4, 5, 6, 11, 12, 13], [1, 2, 3, 14, 15, 16]]
+        })
+    })
+    
+    # to use run.py to generate 3d predictions, 
+    # it requires a 3d dataset that matches 
+    # all the subjects and actions in the 2d dataset
+    dataset_3d_fake = dict({
+        'positions_3d': dict({
+            subject: dict({
+                action: np.ones((poses.shape[0], 32, 3), dtype=np.float32)
+            })
+        })
+    })
+    
+    return dataset_2d, dataset_3d_fake
+
+
+
+
+
+
+
+
+
+
+
+
+def import_detectron_poses(path):
+    """
+    given an npz archive of detectron keypoints and boxes,
+    extract the keypoints for the highest-confidence person
+
+    Args:
+        path - file path to an npz file generated from Detectron
+            and containing keypoints and boxes elements,
+            the value of each being stacked video-frame results
+            from detectron--cls_keyps, and cls_boxes respectively.
+            Since the Detectron results for each frane
+            include results for all detecron classes, 
+            the import process here pulls just the 'person' class (1).
+            Similarly, since the Detectron box results include
+            multiple ROI proposals (regions of interest for possible persons),
+            the import process takes only the highest-confidence person
+            for each frame. NOTE: this is not a robust approach, since
+            there genuinely could be multiple persons in video frames,
+            and we should really figure out a way to identify and then
+            track a specific person.
+    """
+    # Latin1 encoding because Detectron runs on Python 2.7
+    data = np.load(path, encoding='latin1')
+    kp = data['keypoints']
+    bb = data['boxes']
+    results = []
+    for i in range(len(bb)):
+        if len(bb[i][1]) == 0:
+            assert i > 0
+            # Use last pose in case of detection failure
+            results.append(results[-1])
+            continue
+        best_match = np.argmax(bb[i][1][:, 4])
+        keypoints = kp[i][1][best_match].T.copy()
+        results.append(keypoints)
+    results = np.array(results)
+    # return results[:, :, 4:6] # Soft-argmax
+    return results[:, :, [0, 1, 3]]
+
+
 def extract_data(npz_file):
     """
     given a data archive or (PathLike to a data archive)
@@ -97,9 +191,9 @@ def poses_2_archive(poses, subject='S1', action='Default'):
         'keypoints_symmetry': [[4, 5, 6, 11, 12, 13], [1, 2, 3, 14, 15, 16]]
     })
     
-    archive = dict({
+    dataset_2d = dict({
         'positions_2d': positions_2d,
         'metadata': metadata
     })
     
-    return archive
+    return dataset_2d
