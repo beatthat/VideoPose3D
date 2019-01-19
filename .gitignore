@@ -1,0 +1,4 @@
+*.zip
+*.npz
+checkpoint
+__pycache__
