@@ -1,5 +1,40 @@
+# This is the 'in the wild' fork of 3D human pose estimation in video with temporal convolutions and semi-supervised training
+With this repository you can run the VideoPose3D code on your own data. run_wild.py enables you to run the code on 2D poses that you created yourself using detectron. I did not use CPN 2D pose refinemend as discussed [here](https://github.com/facebookresearch/VideoPose3D/issues/2#issuecomment-443502874). 
+
+To run this:
+If you want to run this on your own videos you have to do step 1. and 2. otherwise go directly to 4. VideoPose3D part
+
+### Detectron part
+1. Find a video you like and download it.
+2. Use ffmpeg to split it into individual frames in 'detectron_tools/' you can find the modified infer_simple.py file witch helps you to export the 2D poses. And the detectron_tools.txt that shows and example on how to use ffmpeg on your video.
+2. Run detecton:
+	- Download the [config-file](https://github.com/facebookresearch/Detectron/blob/master/configs/12_2017_baselines/e2e_keypoint_rcnn_R-101-FPN_s1x.yaml) (specified by --cfg flag) you will need it for detectron.
+	- Download the weights file with the coco keypoints!
+	- Replace pathToYourWeightFileFrom and run detectron with your arguments:
+```
+python infer_simple.py --cfg /detectron/videopose3d/e2e_keypoint_rcnn_R-101-FPN_s1x.yaml --output-dir demo/scating_vis --image-ext jpg --wts
+	/pathToYourWeightFileFrom2.2/keypoints_coco_2014_train:keypoints_coco_2014_valminusminival/model_final.pkl
+demo/splitted_scating
+```
+### VideoPose3D part
+4. Move the data_2d_detections.npz file, that you created in step 2, into VideoPose3D/data or just use the one I created from the ice scating video.
+5. When you run the program make sure you choose the right video file! The ice scating video is located at InTheWildData/out_cutted.mp4
+6. Download the checkpoint file provided by the authors and move it to your VideoPose3D/checkpoint folder. [Help](https://s3.amazonaws.com/video-pose-3d/d-pt-243.bin)
+7. Prepare the data_3d_h36m.npz file in the data directory. [Help](https://github.com/facebookresearch/VideoPose3D/blob/master/DATASETS.md#setup-from-preprocessed-dataset)
+8. Now it is time to run the thing!
+
+My arguments for VideoPose3D:
+```
+python run_wild -k detections -arc 3,3,3,3,3 -c checkpoint --evaluate d-pt-243.bin --render --viz-subject S1 --viz-action Directions --viz-video InTheWildData/out_cutted.mp4 --viz-camera 0 --viz-output output_scater.mp4 --viz-size 5 --viz-downsample 1 --viz-skip 9
+```
+
+### Result
+
+![](https://user-images.githubusercontent.com/8737489/52120837-f0f4e880-261d-11e9-8827-77a869f37d6a.gif)
+
 # 3D human pose estimation in video with temporal convolutions and semi-supervised training
 <p align="center"><img src="images/convolutions_anim.gif" width="50%" alt="" /></p>
+
 
 This is the implementation of the approach described in the paper:
 > Dario Pavllo, Christoph Feichtenhofer, David Grangier, and Michael Auli. [3D human pose estimation in video with temporal convolutions and semi-supervised training](https://arxiv.org/abs/1811.11742). In *arXiv*, 2018.

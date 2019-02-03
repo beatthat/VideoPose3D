@@ -83,7 +83,7 @@ def render_animation(keypoints, poses, skeleton, fps, bitrate, azim, output, vie
         ax.set_xticklabels([])
         ax.set_yticklabels([])
         ax.set_zticklabels([])
-        ax.dist = 7.5
+        ax.dist = 12.5
         ax.set_title(title) #, pad=35
         ax_3d.append(ax)
         lines_3d.append([])
@@ -136,7 +136,7 @@ def render_animation(keypoints, poses, skeleton, fps, bitrate, azim, output, vie
                 if j_parent == -1:
                     continue
                     
-                if len(parents) == keypoints.shape[1]:
+                if len(parents) == keypoints.shape[1] and 1 == 2:
                     # Draw skeleton only if keypoints match (otherwise we don't have the parents definition)
                     lines.append(ax_in.plot([keypoints[i, j, 0], keypoints[i, j_parent, 0]],
                                             [keypoints[i, j, 1], keypoints[i, j_parent, 1]], color='pink'))
@@ -158,7 +158,7 @@ def render_animation(keypoints, poses, skeleton, fps, bitrate, azim, output, vie
                 if j_parent == -1:
                     continue
                 
-                if len(parents) == keypoints.shape[1]:
+                if len(parents) == keypoints.shape[1] and 1 == 2:
                     lines[j-1][0].set_data([keypoints[i, j, 0], keypoints[i, j_parent, 0]],
                                            [keypoints[i, j, 1], keypoints[i, j_parent, 1]])
 

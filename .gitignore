@@ -1,4 +1,8 @@
 *.zip
 *.npz
-checkpoint
 __pycache__
+.idea/
+checkpoint/*
+outputs/*
+__pycache__/
+*.py[cod]
