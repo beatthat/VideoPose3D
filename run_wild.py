@@ -63,7 +63,7 @@ for subject in dataset.subjects():
 
 print('Loading 2D detections...')
 #keypoints = np.load('data/data_2d_' + args.dataset + '_' + args.keypoints + '.npz')
-keypoints = np.load('data/data_2d_' + args.keypoints + '.npz')
+keypoints = np.load('data/data_2d_' + args.keypoints + '.npz', encoding='latin1')
 keypoints_symmetry = keypoints['metadata'].item()['keypoints_symmetry']
 kps_left, kps_right = list(keypoints_symmetry[0]), list(keypoints_symmetry[1])
 kps_left = [1, 3, 5, 7, 9, 11, 13, 15]
@@ -78,7 +78,7 @@ keypoints = keypoints['positions_2d'].item()
 
 subject = 'S1'
 
-action = 'Directions'
+action = 'Directions 1'
 
 #for subject in keypoints.keys():
 #    for action in keypoints[subject]:
@@ -111,7 +111,7 @@ def fetch(subjects, action_filter=None, subset=1, parse_3d_poses=True):
     out_poses_2d = []
     out_camera_params = []
     subject = 'S1'
-    action = 'Directions'
+    action = 'Directions 1'
 
                 
     poses_2d = keypoints[subject][action]
@@ -254,7 +254,7 @@ def evaluate(test_generator, action=None, return_predictions=False):
 
 if args.render:
     print('Rendering...')
-    my_action = 'Directions'
+    my_action = 'Directions 1'
     #input_keypoints = keypoints[args.viz_subject][args.viz_action][args.viz_camera].copy()
     input_keypoints = keypoints[args.viz_subject][my_action][args.viz_camera].copy()
     if args.viz_subject in dataset.subjects() and args.viz_action in dataset[args.viz_subject]:
