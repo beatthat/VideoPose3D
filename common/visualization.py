@@ -121,7 +121,7 @@ def render_animation(keypoints, poses, skeleton, fps, bitrate, azim, output, vie
         limit = min(limit, len(all_frames))
 
     parents = skeleton.parents()
-    def update_video(i):
+    def update_video(i, overlay_2d=False):
         nonlocal initialized, image, lines, points
 
         for n, ax in enumerate(ax_3d):
@@ -131,25 +131,21 @@ def render_animation(keypoints, poses, skeleton, fps, bitrate, azim, output, vie
         # Update 2D poses
         if not initialized:
             image = ax_in.imshow(all_frames[i], aspect='equal')
-            
             for j, j_parent in enumerate(parents):
                 if j_parent == -1:
                     continue
-                    
-                if len(parents) == keypoints.shape[1]:
+                if overlay_2d and len(parents) == keypoints.shape[1]:
                     # Draw skeleton only if keypoints match (otherwise we don't have the parents definition)
                     lines.append(ax_in.plot([keypoints[i, j, 0], keypoints[i, j_parent, 0]],
                                             [keypoints[i, j, 1], keypoints[i, j_parent, 1]], color='pink'))
-
                 col = 'red' if j in skeleton.joints_right() else 'black'
                 for n, ax in enumerate(ax_3d):
                     pos = poses[n][i]
                     lines_3d[n].append(ax.plot([pos[j, 0], pos[j_parent, 0]],
                                                [pos[j, 1], pos[j_parent, 1]],
                                                [pos[j, 2], pos[j_parent, 2]], zdir='z', c=col))
-
-            points = ax_in.scatter(*keypoints[i].T, 5, color='red', edgecolors='white', zorder=10)
-
+            if overlay_2d:
+                points = ax_in.scatter(*keypoints[i].T, 5, color='red', edgecolors='white', zorder=10)
             initialized = True
         else:
             image.set_data(all_frames[i])
@@ -158,7 +154,7 @@ def render_animation(keypoints, poses, skeleton, fps, bitrate, azim, output, vie
                 if j_parent == -1:
                     continue
                 
-                if len(parents) == keypoints.shape[1]:
+                if overlay_2d and len(parents) == keypoints.shape[1]:
                     lines[j-1][0].set_data([keypoints[i, j, 0], keypoints[i, j_parent, 0]],
                                            [keypoints[i, j, 1], keypoints[i, j_parent, 1]])
 
@@ -167,8 +163,8 @@ def render_animation(keypoints, poses, skeleton, fps, bitrate, azim, output, vie
                     lines_3d[n][j-1][0].set_xdata([pos[j, 0], pos[j_parent, 0]])
                     lines_3d[n][j-1][0].set_ydata([pos[j, 1], pos[j_parent, 1]])
                     lines_3d[n][j-1][0].set_3d_properties([pos[j, 2], pos[j_parent, 2]], zdir='z')
-
-            points.set_offsets(keypoints[i])
+            if overlay_2d:
+                points.set_offsets(keypoints[i])
         
         print('{}/{}      '.format(i, limit), end='\r')
         
